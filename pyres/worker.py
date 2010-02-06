@@ -38,7 +38,6 @@ class Worker(object):
         self.resq.redis.sadd('resque:workers',str(self))
         #self.resq._redis.add("worker:#{self}:started", Time.now.to_s)
         self.started = datetime.datetime.now()
-        
     
     def _set_started(self, time):
         if time:
@@ -202,7 +201,7 @@ class Worker(object):
         return 'working' if self.resq.redis.exists('resque:worker:%s' % self) else 'idle'
     
     @classmethod
-    def run(cls, queues, server):
+    def run(cls, queues, server="localhost:6379"):
         worker = cls(queues=queues, server=server)
         worker.work()
     
