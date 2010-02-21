@@ -57,10 +57,7 @@ class ResQ(object):
     SomeClass can be any python class with *perform* method and a *queue* 
     attribute on it.
     """
-    def __init__(self, server="localhost:6379", password=None, 
-                 timeout=None, retry_connection=True):
-        self.timeout = timeout
-        self.retry_connection = retry_connection
+    def __init__(self, server="localhost:6379", password=None):
         self.redis = server
         if password:
             self.redis.auth(password)
@@ -103,9 +100,7 @@ class ResQ(object):
         if isinstance(server, basestring):
             self.dsn = server
             host, port = server.split(':')
-            self._redis = Redis(host=host, port=int(port), 
-                                retry_connection=self.retry_connection,
-                                timeout=self.timeout)
+            self._redis = Redis(host=host, port=int(port))
         elif isinstance(server, Redis):
             self.dsn = '%s:%s' % (server.host,server.port)
             self._redis = server
