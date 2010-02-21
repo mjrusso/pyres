@@ -3,6 +3,7 @@ __version__ = '0.5.0'
 from redis import Redis
 import pyres.json_parser as json
 
+import logging
 import types
 
 def my_import(name):
@@ -114,14 +115,18 @@ class ResQ(object):
         has **queue** attribute and a **perform** method on it.
         """
         queue = getattr(klass,'queue', None)
-        #print cls._res
         if queue:
             class_name = '%s.%s' % (klass.__module__, klass.__name__)
-            #print class_name
             self.push(queue, {'class':class_name,'args':args})
-            #Job.create(queue, klass,*args)
+            logging.info("enqueued '%s' job" % class_name)
+            logging.debug("job arguments: %s" % args)
+        else:
+            logging.warning("unable to enqueue job with class %s" % str(klass))
+
     def enqueue_from_string(self, klass_as_string, queue, *args):
         self.push(queue, {'class':klass_as_string,'args':args})
+        logging.info("enqueued '%s' job" % class_name)
+        logging.debug("job arguments: %s" % args)
     
     def queues(self):
         return self.redis.smembers("resque:queues")
@@ -188,13 +193,11 @@ class ResQ(object):
     @classmethod
     def _enqueue(cls, klass, *args):
         queue = getattr(klass,'queue', None)
-        #print cls._res
         _self = cls()
         if queue:
             class_name = '%s.%s' % (klass.__module__, klass.__name__)
-            #print class_name
             _self.push(queue, {'class':class_name,'args':args})
-            #Job.create(queue, klass,*args)
+
 
 class Stat(object):
     """
