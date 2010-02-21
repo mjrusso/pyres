@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import grizzled.os
 import logging
+import os
+import sys
 
 from optparse import OptionParser
 from pyres.worker import Worker
@@ -14,12 +17,12 @@ LOG_LEVELS = {
 }
 
 def main():
-    
     usage = "usage: %prog [options] arg1"
     parser = OptionParser(usage=usage)
-    #parser.add_option("-q", dest="queue_list")
     parser.add_option("--host", dest="host", default="localhost")
     parser.add_option("--port",dest="port",type="int", default=6379)
+    parser.add_option('-d', '--daemon', dest='daemon', action='store_false', help='enable daemon mode')    
+    parser.add_option('-f', '--log-file', dest='log_file', help='log file path; if daemon mode is enabled but parameter not specified, then logs are not stored; if daemon mode is disabled, all logging is done to the console and this parameter is ignored.')
     parser.add_option("-i", '--interval', dest='interval', default=None, help='the default time interval to sleep between runs')    
     parser.add_option('-l', '--log-level', dest='log_level', default=LOG_LEVELS['info'], help='log level.  Valid values are "debug", "info", "warning", "error", "critical", in decreasing order of verbosity. Defaults to "info" if parameter not specified.')
     (options,args) = parser.parse_args()
@@ -33,13 +36,33 @@ def main():
         parser.error("invalid log level specified")
     else:
         log_level = LOG_LEVELS[options.log_level]
-        
-    logging.basicConfig(level=log_level, format="%(asctime)s: %(levelname)s: %(message)s")
-
+    
     interval = options.interval
     if interval is not None: 
         interval = float(interval)
 
+    daemon_enabled = False
+    log_file = None
+    if options.daemon is not None:
+        daemon_enabled = True
+        if options.log_file is not None:
+            file_tokens = options.log_file.split(os.path.sep)
+            if os.path.isdir(os.path.sep.join(file_tokens[0:-1])):
+                log_file = options.log_file
+            else:
+                print 'invalid log file path; exiting'
+                exit(-1)
+        if log_file is None:
+            print 'warning: log file not specified but running in daemon mode; no log will be stored'
+
+    logging.basicConfig(filename=log_file, level=log_level, format="%(asctime)s: %(levelname)s: %(message)s")
+
+    if daemon_enabled:
+        logging.info('initializing daemon')
+        grizzled.os.WORKDIR = os.path.abspath(os.path.dirname(__file__))
+        grizzled.os.daemonize()
+        logging.info('initialized daemon')
+            
     queues = args[0].split(',')
     server = '%s:%s' % (options.host,options.port)
     Worker.run(queues, server, interval)
