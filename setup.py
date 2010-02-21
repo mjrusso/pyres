@@ -18,7 +18,8 @@ setup(
         'simplejson>=2.0.9',
         'itty>=0.6.2',
         'redis>=0.6.0',
-        'pystache>=0.1.0'
+        'pystache>=0.1.0',
+        'grizzled>=0.9.3'        
     ],
     classifiers = [
             'Development Status :: 4 - Beta',
