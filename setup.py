@@ -11,6 +11,7 @@ setup(
     license='MIT',
     url='http://github.com/binarydud/pyres',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+    package_data={'resweb': ['templates/*.mustache','media/*']},
     download_url='http://cloud.github.com/downloads/binarydud/pyres/pyres-v%s.tar.gz' % version,
     include_package_data=True,
     scripts=['scripts/pyres_worker', 'scripts/pyres_web'],
