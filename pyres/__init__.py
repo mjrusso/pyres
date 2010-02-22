@@ -58,7 +58,10 @@ class ResQ(object):
     SomeClass can be any python class with *perform* method and a *queue* 
     attribute on it.
     """
-    def __init__(self, server="localhost:6379", password=None):
+    def __init__(self, server="localhost:6379", password=None, 
+                 timeout=None, retry_connection=True):
+        self.timeout = timeout
+        #self.retry_connection = retry_connection
         self.redis = server
         if password:
             self.redis.auth(password)
@@ -66,10 +69,10 @@ class ResQ(object):
 
     def push(self, queue, item):
         self.watch_queue(queue)
-        self.redis.push("resque:queue:%s" % queue, ResQ.encode(item))
+        self.redis.rpush("resque:queue:%s" % queue, ResQ.encode(item))
 
     def pop(self, queue):
-        ret = self.redis.pop("resque:queue:%s" % queue)
+        ret = self.redis.lpop("resque:queue:%s" % queue)
         if ret:
             return ResQ.decode(ret)
         return ret
@@ -88,7 +91,7 @@ class ResQ(object):
         return self.list_range('resque:queue:%s' % queue, start, count)
 
     def list_range(self, key, start, count):
-        items = self.redis.lrange(key, start,start+count-1)
+        items = self.redis.lrange(key, start,start+count-1) or []
         ret_list = []
         for i in items:
             ret_list.append(ResQ.decode(i))
@@ -129,7 +132,7 @@ class ResQ(object):
         logging.debug("job arguments: %s" % args)
     
     def queues(self):
-        return self.redis.smembers("resque:queues")
+        return self.redis.smembers("resque:queues") or []
     
     def info(self):
         """
