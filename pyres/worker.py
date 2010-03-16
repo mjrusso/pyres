@@ -67,6 +67,11 @@ class Worker(object):
     def prune_dead_workers(self):
         all_workers = Worker.all(self.resq)
         known_workers = self.worker_pids()
+        
+        logging.debug("all workers: '%s'" % all_workers)
+        logging.debug("known workers: '%s'" % known_workers)
+        logging.debug("hostname: '%s'" % self.hostname)
+
         for worker in all_workers:
             host, pid, queues = worker.id.split(':')
             if host != self.hostname:
