@@ -1,3 +1,26 @@
+## 0.7.5.1 (2010-03-18)
+* fixed the pyres_scheduler script
+* changed download link to remove v from version number
+
+## 0.7.5 (2010-03-18)
+* added feature to retry jobs based on a class attribute
+
+## 0.7.1 (2010-03-16)
+* bug fix for pruning workers.
+
+## 0.7.0 (2010-03-05)
+* delayed tasks
+* resweb pagination
+* switch stored timestamps to a unix timestamp
+* updated documentation
+* upgraded to redis-py 1.34.1
+* switched from print statements to the logging module
+* import errors on jobs are now reported in the failed queue
+* prune dead workers
+* small bugfixes in the resweb package
+* improved failure formatting
+* datetime json parser
+
 ## 0.5.0 (2010-0114)
 
 * added new documentation to the project

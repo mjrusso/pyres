@@ -11,12 +11,33 @@ class Basic(object):
         print s
         return s
 
+class BasicMulti(object):
+    queue = 'basic'
+    @staticmethod
+    def perform(name, age):
+        print 'name: %s, age: %s'
+    
+
 class ReturnAllArgsJob(object):
     queue = 'basic'
 
     @staticmethod
     def perform(*args):
         return args
+
+
+class RetryOnExceptionJob(object):
+    queue = 'basic'
+    retry_every = 5
+    retry_timeout = 15
+
+    @staticmethod
+    def perform(fail_until):
+        if ResQ._current_time() < fail_until:
+            raise Exception("Don't blame me!  I'm supposed to fail!")
+        else:
+            return True
+
 
 class TestProcess(object):
     queue = 'high'
@@ -50,11 +71,13 @@ def test_str_to_class():
     assert ret == Basic
     assert str_to_class('hello.World') == None
 
-def test_safe_str_to_class():
-    from pyres import safe_str_to_class
-    assert safe_str_to_class('tests.Basic') == Basic
-    assert safe_str_to_class('test.Mine') == None
-    assert safe_str_to_class('hello.World') == None
+class ImportTest(unittest.TestCase):
+    def test_safe_str_to_class(self):
+        from pyres import safe_str_to_class
+        assert safe_str_to_class('tests.Basic') == Basic
+        self.assertRaises(ImportError, safe_str_to_class, 'test.Mine')
+        self.assertRaises(ImportError, safe_str_to_class, 'tests.World')
+    
 
 class PyResTests(unittest.TestCase):
     def setUp(self):

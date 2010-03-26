@@ -8,15 +8,9 @@ import sys
 from optparse import OptionParser
 from pyres.worker import Worker
 
-LOG_LEVELS = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warning': logging.WARNING,
-    'error': logging.ERROR,
-    'critical': logging.CRITICAL
-}
 
 def main():
+    
     usage = "usage: %prog [options] arg1"
     parser = OptionParser(usage=usage)
     parser.add_option("--host", dest="host", default="localhost")
@@ -31,12 +25,9 @@ def main():
         parser.print_help()
         parser.error("Argument must be a comma seperated list of queues")
 
-    if options.log_level not in LOG_LEVELS.keys():
-        parser.print_help()
-        parser.error("invalid log level specified")
-    else:
-        log_level = LOG_LEVELS[options.log_level]
-    
+    log_level = getattr(logging, options.log_level.upper(), 'INFO')
+    logging.basicConfig(level=log_level, format="%(asctime)s: %(levelname)s: %(message)s")
+
     interval = options.interval
     if interval is not None: 
         interval = float(interval)
